@@ -31,6 +31,13 @@ $prev=$null;
 
 for (; $b -lt $depths.Length; $a++ && $b++ && $c++)
 {
+    # graham pointed out that that this summation is redunant
+    # because we're given overlapping segments, we only need to compare the different depths, not those in common
+    # say, for example, depths {A,B,C,D}. The first set would be [A,B,C] and the second set [B,C,D] leading to an equality check like:
+    # A + B + C < B + C + D
+    # subtracting both sides to simplify the equation leads us to a much simpler comparison that can be performed without a summation
+    # A < D 
+    # I will leave my original answer for posterity, but note there is a superior method
     $sum = $depths[$a] + $depths[$b] + $depths[$c];
 
     if ($null -ne $prev) {
