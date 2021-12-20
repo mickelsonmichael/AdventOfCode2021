@@ -1,11 +1,11 @@
 # https://adventofcode.com/2021/day/12
 
 from typing import DefaultDict
-
+from collections import Counter
 
 connections = DefaultDict(set) # dictionary containing the nodes and their connected nodes, with an empty list as the default value
 
-with open("./SmallExample.txt") as file:
+with open("./Input.txt") as file:
     for line in file:
         fr, to = line.strip().split("-")
 
@@ -16,8 +16,10 @@ def visit(node, visited):
     global connections
     global pathsToEnd
 
-    # print(node, list(filter(lambda n : n == "end" or n.isupper() or (n.islower() and n not in visited), connections[node])))
-    for n in filter(lambda n : n == "end" or n.isupper() or (n.islower() and n not in visited), connections[node]):
+    timesVisited = Counter(filter(lambda n : n != "end" and n != "start" and n.islower(), visited))
+    canRevisitASmall = not any([timesVisited[key] > 1 for key in timesVisited])
+
+    for n in filter(lambda n : n != "start" and (n == "end" or n.isupper() or (canRevisitASmall or n not in visited)), connections[node]):
         if n == "end":
             pathsToEnd.append(visited + [n]) # this is a full path
         else:
