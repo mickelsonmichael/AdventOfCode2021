@@ -1,5 +1,8 @@
 # https://adventofcode.com/2021/day/14
 
+from threading import Thread
+from math import ceil
+
 template = ""
 rules = {}
 
@@ -21,33 +24,35 @@ assert(any(rules))
 assert(all([len(x) == 2 for x in rules.keys()]))
 assert(all([len(x) == 1 for x in rules.values()]))
 
+pairs = {}
+for i,c in enumerate(template):
+    if i + 1 == len(template):
+        continue
+
+    pairs[c + template[i+1]] = pairs.setdefault(c + template[i+1], 0) + 1
+
+last = template[-1]
+
 steps = 40
-
 for step in range(1, steps+1):
-    result = ""
+    newPairs = {}
+    counts = {}
 
-    for i,c in enumerate(template):
-        result += c
+    for key in pairs:
+        a,b = key
+        ins = rules[key]
+        times = pairs[key]
 
-        if i >= len(template) - 1:
-            continue
+        newPairs[a+ins] = newPairs.setdefault(a+ins, 0) + times
+        newPairs[ins+b] = newPairs.setdefault(ins+b, 0) + times
 
-        n = template[i+1] # next char
+        counts[a] = counts.setdefault(a, 0) + times
+        counts[ins] = counts.setdefault(ins, 0) + times
 
-        rule = rules[c + n] # get matching rule
+    counts[last] = counts.setdefault(last, 0) + 1
 
-        if rule is not None:
-            result += rule
+    pairs = newPairs
 
-    template = result
-    # print("template after step", step, "is", template)
-
-counts: dict[str, int] = {}
-for c in template:
-    counts[c] = counts.setdefault(c, 0) + 1
-
-print("len(", len(template), ")")
-print(counts)
 
 min = ""
 max = ""
@@ -60,10 +65,8 @@ for key in counts:
 
     if counts[key] < counts[min]:
         min = key
-    
+
     if counts[key] > counts[max]:
         max = key
 
-print("min", min, "max", max)
-
-print("part 1 solution", (counts[max] - counts[min]))
+print("part 2 solution", (counts[max] - counts[min]))
