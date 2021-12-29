@@ -131,6 +131,78 @@ class Packet
                 this->current_bit = next.current_bit;
             }
         }
+
+        // Packets with type ID 0 are sum packets
+        if (this->type_id == 0)
+        {
+            this->value = 0;
+
+            for (Packet p : this->packets)
+            {
+                this->value += p.value;
+            }
+        }
+        // Packets with ID 1 are product packets
+        else if (this->type_id == 1)
+        {
+            this->value = 1;
+
+            for (Packet p : this->packets)
+            {
+                this-> value *= p.value;
+            }
+        }
+        // Packets with ID 2 are minimum packets
+        else if (this->type_id == 2)
+        {
+            this->value = this->packets[0].value;
+
+            for (Packet p : this->packets)
+            {
+                if (p.value < this->value)
+                {
+                    this->value = p.value;
+                }
+            }
+        }
+        // Packets with ID 3 are maximum packets
+        else if (this->type_id == 3)
+        {
+            this->value = 0;
+
+            for (Packet p : this->packets)
+            {
+                if (p.value > this->value)
+                {
+                    this->value = p.value;
+                }
+            }
+        }
+        // Packets with ID 5 are greater than packets
+        else if (this->type_id == 5)
+        {
+            assert(this->packets.size() == 2); // size must always be two
+
+            this->value = this->packets[0].value > this->packets[1].value ? 1 : 0;
+        }
+        // Packets with ID 6 are less than packets
+        else if (this->type_id == 6)
+        {
+            assert(this->packets.size() == 2); // size must always be two
+
+            this->value = this->packets[0].value < this->packets[1].value ? 1 : 0;
+        }
+        // Packets with ID 7 are euqal to packets
+        else if (this->type_id == 7)
+        {
+            assert(this->packets.size() == 2); // size must always be two
+
+            this->value = this->packets[0].value == this->packets[1].value ? 1 : 0;
+        }
+        else
+        {
+            throw invalid_argument("unable to parse packet type id " + to_string(this->type_id));
+        }
     }
 
     void parse()
@@ -208,7 +280,7 @@ public:
 
 int main()
 {
-    string example = "A0016C880162017C3686B18A3D4780";
+    string example = "9C0141080250320F1802104A08";
 
     stringstream ss;
     ifstream file("Input.txt");
